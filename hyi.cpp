@@ -7,7 +7,7 @@ using namespace std;
 
 //|-----------------------------CLASSES----------------------------|
 const int STR_SIZE = 32;
-
+class BankBranch;
 class Person {
     char name[STR_SIZE];
     char surname[STR_SIZE];
@@ -70,44 +70,55 @@ public:
 };
 //головна система, має містити в собі головний баланс який буде визначати функціональність банку
 class Bank {
-    int bankID;
+    int bankID=0;
     int money = 0;
-    char name[20];
+    char name[20] = {};
 public:
     Bank() = default;
     Bank(int money, const char name[]) : money(money) { strcpy(this->name, name); }
-    void showInfo() { cout << "\n|-------------------|\nBank name: " << name << "\nBank money: " << money; }
+    void showInfo() { cout << "\n|-------------------|\nBank name: " << name << "\nBank money: " << money << "\n|-------------------|\n"; }
     void setMoney(int money) { this->money = money; }
     void setName(const char name[]) { strcpy(this->name, name); }
     void setBankID(int bankID) { this->bankID = bankID; }
     int getBankID() { return bankID; }
-    int getAllBankMoney(vector<BankBranch>& branches) { int sum = money;for (auto& a : branches)if (a.getBranchID() == bankID)sum+=a.getBranchMoney(); }
 
-    int WithdrawMoney(int num) { if (money - num > 0) { money -= num; return 0; } else return 1; }
-    void PutMoney(int num, int balance) { if (balance < num)cout << "You have no money!\n"; }
+    int getAllBankMoney(vector<BankBranch>& branches);
+    int getBranchesMoney(vector<BankBranch>& branches);
+    vector<BankBranch*> getActualBranches(vector<BankBranch>& branches);
+    int getBranchesCount(vector<BankBranch>& branches);
+    void recalcAllMoneyFromBranches(vector<BankBranch>& branches);
+    void WithdrawMoneyFromBranches(int num, vector<BankBranch>& branches);
+    int WithdrawMoney(int num, vector<BankBranch>& branches, Client& client);
 };
 //через відділення банку можна звязувати з головним банком та запитувати доступ до операцій таких як покласти гроші зняти гроші кредит і депозит
 //коротко кажучи саме через цю штуку будуть відбуватися всі операції
 //на операції можуть робити запити робітники банку тим самим вони роблять реквест до відділення відділення звязується з банком і видає результат операції 
 class BankBranch {
-    int bankID=0;
-    Bank* bank_ptr=nullptr;
-    int money;
+    int bankID = 0;
+    Bank* bank_ptr = nullptr;
+    int money=0;
 public:
     BankBranch() = default;
-    BankBranch(int bankID):bankID(bankID){}
+    BankBranch(int bankID) :bankID(bankID) {}
 
     void setBankID(int bankID) { this->bankID = bankID; }
     int getBranchID() { return bankID; }
     void setBankPointer(Bank* b) { bank_ptr = b; }
+    void setBranchMoney(int num) { money = num; }
     int getBranchMoney() { return money; }
+    void decreaseBranchMoney(int num) { money -= num; }
 
-    void WithdrawMoney(int num) { int responce = bank_ptr->WithdrawMoney(num); if (responce == 0)cout << "WithdrawComplete!\n";else if (responce == 1)cout << "Bank dont have money!\n";else cout << "Unknown error!\n"; }
-    void PutMoney(int num, Client& cl, vector<BankBranch>& branches) { if (cl.getClientBalance() < num)cout << "You have no money!\n";else { if (num > this->money && num <= bank_ptr->getAllBankMoney(branches)); } };
-}
+    int WithdrawMoney(int num, Client& client, vector<BankBranch>& branches) { if (client.getClientBalance() < num)cout << "You dont have enough money";else { if (num < getBranchMoney()) { client.increaseClientBalance(num);setBranchMoney(getBranchMoney() - num); } else { if (bank_ptr->getAllBankMoney(branches) > num) { if (bank_ptr->WithdrawMoney(num, branches, client) == 1)return 1; } } } return 0; }
+    //void PutMoney(int num, Client& cl, vector<BankBranch>& branches) { if (cl.getClientBalance() < num)cout << "You have no money!\n";else { if (num > this->money && num <= bank_ptr->getAllBankMoney(branches)); } }
 
 };
-
+int Bank::getAllBankMoney(vector<BankBranch>& branches) { int sum = money;vector<BankBranch*>temp = getActualBranches(branches);for (auto& a : temp)sum += a->getBranchMoney(); return sum; }
+int Bank::getBranchesMoney(vector<BankBranch>& branches) { int sum = 0;vector<BankBranch*>temp = getActualBranches(branches);for (auto& a : temp)sum += a->getBranchMoney(); return sum; }
+vector<BankBranch*> Bank::getActualBranches(vector<BankBranch>& branches) { vector<BankBranch*> tempBranches;for (auto& a : branches)if (a.getBranchID() == bankID)tempBranches.push_back(&a);return tempBranches; }
+int Bank::getBranchesCount(vector<BankBranch>& branches) { int count = 0;for (auto& a : branches)if (a.getBranchID() == bankID)count++;return count; }
+void Bank::recalcAllMoneyFromBranches(vector<BankBranch>& branches) { vector<BankBranch*> tempBranches = getActualBranches(branches);int sum = getBranchesMoney(branches);int count = getBranchesCount(branches);if (count > 0) { for (auto& a : tempBranches)a->setBranchMoney(sum / count);tempBranches.clear(); } else cout << "There is zero branches"; }
+void Bank::WithdrawMoneyFromBranches(int num, vector<BankBranch>& branches) { vector<BankBranch*> tempbranch = getActualBranches(branches);int count = getBranchesCount(branches), sum = getBranchesMoney(branches), avg = sum / count;for (auto& a : tempbranch) { money += avg;a->decreaseBranchMoney(avg); } }
+int Bank::WithdrawMoney(int num, vector<BankBranch>& branches, Client& client) { recalcAllMoneyFromBranches(branches);if (money >= num) { money -= num; client.increaseClientBalance(num); } else if (getAllBankMoney(branches) > num) { WithdrawMoneyFromBranches(num, branches);money -= num;client.increaseClientBalance(num); } else { cout << "Cannot withdraw: insufficient funds.\n";return 1; } return 0; }
 //|-----------------------------CLASSES----------------------------|
 
 
@@ -221,71 +232,6 @@ void linkBank(vector<BankBranch>& branches,vector<Bank>& banks) {
         else { ++it; }
     }
 }
-void linkBank(vector<BankBranch>& branches, vector<Bank>& banks) {
-    for (auto it = branches.begin(); it != branches.end(); ) {
-        BankBranch& branch = *it;
-        bool found = false;
-
-        for (auto& bank : banks) {
-            if (branch.getBranchID() == bank.getBankID()) {
-                branch.setBankPointer(&bank);
-                found = true;
-                cout << "Linked branch ID " << branch.getBranchID() << " to bank.\n";
-                break;
-            }
-        }
-
-        if (!found) {
-            cout << "WARNING: Branch ID " << branch.getBranchID() << " has no matching bank!\n";
-            cout << "Do you want to:\n";
-            cout << "  [1] Link to existing bank manually\n";
-            cout << "  [2] Delete this branch\n";
-            cout << "Your choice: ";
-            int choice;
-            cin >> choice;
-
-            if (choice == 1) {
-                cout << "Available banks:\n";
-                for (auto& bank : banks) {
-                    cout << "  ID: " << bank.getBankID() << "\n";
-                }
-
-                cout << "Enter bank ID to link: ";
-                int id;
-                cin >> id;
-
-                auto foundBank = std::find_if(banks.begin(), banks.end(), [id](const Bank& b) {
-                    return b.getBankID() == id;
-                    });
-
-                if (foundBank != banks.end()) {
-                    branch.setBankPointer(&(*foundBank));
-                    cout << "Branch linked to bank ID " << id << ".\n";
-                    ++it; // move to next element
-                }
-                else {
-                    cout << "Invalid bank ID. Branch not linked.\n";
-                    it = branches.erase(it); // delete this branch
-                }
-
-            }
-            else if (choice == 2) {
-                cout << "Branch ID " << branch.getBranchID() << " deleted.\n";
-                it = branches.erase(it); // remove current branch
-            }
-            else {
-                cout << "Invalid option. Branch skipped.\n";
-                ++it;
-            }
-
-        }
-        else {
-            ++it; // move to next element
-        }
-    }
-}
-
-
 
 //|----------------------Functions----------------------|
 
