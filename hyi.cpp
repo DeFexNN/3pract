@@ -13,12 +13,12 @@ class Person {
     char surname[STR_SIZE];
     char lastname[STR_SIZE];
 public:
-    Person() { name[0]=surname[0]=lastname[0]=0; }
+    Person() { name[0] = surname[0] = lastname[0] = 0; }
 
     Person(const char* n, const char* s, const char* l) {
-        strncpy(name, n, STR_SIZE); name[STR_SIZE-1]=0;
-        strncpy(surname, s, STR_SIZE); surname[STR_SIZE-1]=0;
-        strncpy(lastname, l, STR_SIZE); lastname[STR_SIZE-1]=0;
+        strncpy(name, n, STR_SIZE); name[STR_SIZE - 1] = 0;
+        strncpy(surname, s, STR_SIZE); surname[STR_SIZE - 1] = 0;
+        strncpy(lastname, l, STR_SIZE); lastname[STR_SIZE - 1] = 0;
     }
     Person(const Person& p) {
         strncpy(name, p.name, STR_SIZE);
@@ -44,28 +44,73 @@ class Worker : public Person {
     int ID;
     char position[STR_SIZE];
 public:
-    Worker() : ID(0) { position[0]=0; }
+    Worker() : ID(0) { position[0] = 0; }
     Worker(const Person& p, const char* pos, int ID) : Person(p), ID(ID) {
-        strncpy(position, pos, STR_SIZE); position[STR_SIZE-1]=0;
+        strncpy(position, pos, STR_SIZE); position[STR_SIZE - 1] = 0;
     }
     void ShowInfo() {
-        cout << "Name: " << getName() << "\nSurname: " << getSurname() << "\nLastname: " << getLastname() << "\nID: " << ID << "\nPosition: " << position << endl;
+        cout << "\n|-------------------|\nName: " << getName() << "\nSurname: " << getSurname() << "\nLastname: " << getLastname() << "\nID: " << ID << "\nPosition: " << position << endl;
     }
     int getID() const { return ID; }
     string getPosition() const { return position; }
 };
+class Client : public Person {
+    int balance=0;
+    int clientID;
+public:
+    Client() = default;
+    Client(const Person& p, int clientID) : Person(p), clientID(clientID){}
+    void ShowInfo() {
+        cout << "\n|-------------------|\nName: " << getName() << "\nSurname: " << getSurname() << "\nLastname: " << getLastname() << "\nID: " << clientID << "\nBalance: " << balance << endl;
+    }
+    int getClientID() const { return clientID; }
+    int getClientBalance() { return balance; }
+    void decreaseClientBalance(int num) { balance - num; }
+    void increaseClientBalance(int num) { balance + num; }
+};
+//головна система, має містити в собі головний баланс який буде визначати функціональність банку
+class Bank {
+    int bankID;
+    int money=0;
+    char name[20];
+public:
+    Bank() = default;
+    Bank(int money, const char name[]) : money(money) { strcpy(this->name, name); }
+    void showInfo() { cout << "\n|-------------------|\nBank name: " << name << "\nBank money: " << money; }
+    void setMoney(int money) { this->money = money; }
+    void setName(const char name[]) { strcpy(this->name, name); }
+    void setBankID(int bankID) { this->bankID = bankID; }
+    int getBankID() { return bankID; }
+
+    int WithdrawMoney(int num) { if (money - num > 0) { money - num; return 0; } else return 1; }
+    void PutMoney(int num, int balance) { if (balance < num)cout << "You have no money!\n"; }
+};
+//через відділення банку можна звязувати з головним банком та запитувати доступ до операцій таких як покласти гроші зняти гроші кредит і депозит
+//коротко кажучи саме через цю штуку будуть відбуватися всі операції
+//на операції можуть робити запити робітники банку тим самим вони роблять реквест до відділення відділення звязується з банком і видає результат операції 
+class BankBranch {
+    int bankID=0;
+    Bank* bank_ptr=nullptr;
+public:
+    BankBranch() = default;
+    BankBranch(int bankID):bankID(bankID){}
+    void setBankID(int bankID) { this->bankID = bankID; }
+    int getBranchID() { return bankID; }
+    void setBankPointer(Bank* b) { bank_ptr = b; }
+
+    void WithdrawMoney(int num) { int responce = bank_ptr->WithdrawMoney(num); if (responce == 0)cout << "WithdrawComplete!\n";else if (responce == 1)cout << "Bank dont have money!\n";else cout << "Unknown error!\n"; }
+    void PutMoney(int num, int balance) { if (balance < num)cout << "You have no money!\n"; }
+
+};
+
 //|-----------------------------CLASSES----------------------------|
 
 
-//|----------------------Functions----------------------|
 
+//|----------------------Запис Читання з файлу-------------------|
 template <typename T>
 void writeToFile(const char* filename, const vector<T>& data) {
     ofstream file(filename, ios::binary);
-    if (!file) {
-        cerr << "Can't open file for writing.\n";
-        return;
-    }
     for (const auto& obj : data) {
         file.write((char*)(&obj), sizeof(T));
     }
@@ -75,10 +120,6 @@ void writeToFile(const char* filename, const vector<T>& data) {
 template <typename T>
 void readFromFile(const char* filename, vector<T>& data) {
     ifstream file(filename, ios::binary);
-    if (!file) {
-        cerr << "Can't open file for reading.\n";
-        return;
-    }
     data.clear();
     T obj;
     while (file.read((char*)(&obj), sizeof(T))) {
@@ -86,12 +127,13 @@ void readFromFile(const char* filename, vector<T>& data) {
     }
     file.close();
 }
-
+//|----------------------Запис Читання з файлу-------------------|
+//перевірка на унікальність айді при створенні воркера
 bool isIDUnique(int id, vector<Worker>& wk) {
     for (auto& w : wk) if (w.getID() == id) return false;
     return true;
 }
-
+//сама перша менюшка
 void showMenu() {
     cout << "\n==== MENU ====\n";
     cout << "1. Load people from file\n";
@@ -100,17 +142,59 @@ void showMenu() {
     cout << "4. Save to file\n";
     cout << "5. Exit\n";
     cout << "6. Create worker from person\n";
+    cout << "7. BankTest";
     cout << "Choose: ";
 }
+//тестове банк меню
+void BankTestMenu() {
+    cout << "\n==== MENU ====\n";
+    cout << "1. Enter money to bank\n";
+    cout << "2. Enter name for bank\n";
+    cout << "3. Save to file\n";
+    cout << "4. Read from file\n";
+    cout << "5. Create Bank\n";
+    cout << "6. List all banks\n";
+    cout << "7. Exit\n";
+}
+//тестове меню відділень
+void BranchTestMenu() {
+    cout << "\n==== MENU ====\n";
+    cout << "1. Enter money to bank\n";
+    cout << "2. Enter name for bank\n";
+    cout << "3. Save to file\n";
+    cout << "4. Read from file\n";
+    cout << "5. Create Bank\n";
+    cout << "6. List all banks\n";
+    cout << "7. Exit\n";
+}
+//функція для знаходження актуального вказівника на головний банк по айді
+void linkBank(vector<BankBranch> branches,vector<Bank> banks) {
+    for (auto& branch : branches) {
+        for (auto& bank : banks) {
+            if (branch.getBranchID() == bank.getBankID()) {
+                branch.setBankPointer(&bank);cout << "\nFound!\n";
+            }
+        }
+    }
+}
+
 
 //|----------------------Functions----------------------|
 
 int main() {
     vector<Person> people;
     vector<Worker> worker;
+    vector<Client> client;
+    vector<Bank> bank;
+    vector<BankBranch> branch;
     const char* filename = "person.bin";
     const char* worker_filename = "worker.bin";
+    const char* bank_filename = "worker.bin";
     int choice;
+
+//|-------------AUTOSTART--------------|
+    linkBank(branch,bank);
+//|-------------AUTOSTART--------------|  
 
     while (true) {
         showMenu();
@@ -191,6 +275,53 @@ int main() {
                 }
                 Worker tempWorker(people[chose - 1], position, tempid);
                 worker.push_back(tempWorker);
+            }
+        }
+        else if (choice == 7) {
+            while (true) {
+                BankTestMenu();int bankchoice;
+                cout << "Enter your choice: ";cin >> bankchoice;
+                if (bankchoice == 1) {
+                    int lol = 1, prikol, money;
+                    for (auto& a : bank) {
+                        cout << lol << ')';
+                        a.showInfo();
+                        cin >> prikol;lol++;
+                        cout << "Enter ammount of money: ";cin >> money;
+                        bank[prikol].setMoney(money);
+                    }
+                }
+                else if (bankchoice == 2) {
+                    int lol = 1, prikol;char name[20];
+                    for (auto& a : bank) {
+                        cout << lol << ')';
+                        a.showInfo();
+                        cin >> prikol;lol++;
+                        cout << "Enter name: ";cin >> name;
+                        bank[prikol].setName(name);
+                    }
+                }
+                else if (bankchoice == 3) {
+                    writeToFile(bank_filename, bank);
+                }
+                else if (bankchoice == 4) {
+                    readFromFile(bank_filename, bank);
+                }
+                else if (bankchoice == 5) {
+                    int money;char name[20];cout << "Enter amout of money: ";cin >> money;cout << "Enter name: ";cin >> name;cin.ignore();
+                    Bank newBank(money, name);
+                    bank.push_back(newBank);
+                }
+                else if (bankchoice == 6) {
+                    if (bank.empty())cout << "There is no banks...\n";
+                    else for (auto& a : bank) {
+                        a.showInfo();
+                    }
+                }
+                else if (bankchoice == 7)break;
+                else {
+                    cout << "Invalid option!\n";
+                }
             }
         }
         else {
