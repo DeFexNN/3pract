@@ -1,2 +1,4 @@
 ﻿  hyi.cpp
+C:\Users\DeFexGG\source\repos\fdfsd\fdfsd\hyi.cpp(274,38): warning C4267: 'argument': conversion from 'size_t' to 'int', possible loss of data
+C:\Users\DeFexGG\source\repos\fdfsd\fdfsd\hyi.cpp(109,1): warning C4715: 'BankBranch::getMoneyFromBank': not all control paths return a value
   fdfsd.vcxproj -> C:\Users\DeFexGG\source\repos\fdfsd\x64\Debug\fdfsd.exe
