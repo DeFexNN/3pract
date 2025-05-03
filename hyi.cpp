@@ -40,9 +40,23 @@ public:
     string getSurname() const { return surname; }
     string getLastname() const { return lastname; }
 };
+class Position {
+    int salary;
+    char position[STR_SIZE];
+public:
+    Position() = default;
+    void setSalary(int num) { salary = num; }
+    void increaseSalary(int num) { salary += num; }
+    void decreaseSalary(int num) { salary -= num; }
+    int getSalary() { return salary; }
 
+    void setPosition(const char* pos) { strcpy(position, pos); }
+    string getPosition() { return position; }
+};
 class Worker : public Person {
-    int ID;
+    int ID=0;
+    int WorkBranchID=0;
+    int WorkBankID = 0;
     char position[STR_SIZE];
 public:
     Worker() : ID(0) { position[0] = 0; }
@@ -77,7 +91,7 @@ class Bank {
 public:
     Bank() = default;
     Bank(int money, const char name[]) : money(money) { strcpy(this->name, name); }
-    void showInfo() { cout << "\n|-------------------|\nBank name: " << name << "\nBank money: " << money << "\nActual branches:\n"; }
+    void showInfo() { cout << "\n|-------------------|\nBank name: " << name << "\nBank money: " << money<<endl; }
     void setMoney(int money) { this->money = money; }
     void setName(const char name[]) { strcpy(this->name, name); }
     void setBankID(int bankID) { this->bankID = bankID; }
@@ -100,8 +114,8 @@ class BankBranch {
     int branchNUM=0;
     char addr[50] = {};
     int bankID = 0;
-    Bank* bank_ptr = nullptr;
     int money=0;
+    Bank* bank_ptr = nullptr;
 public:
     BankBranch() = default;
     BankBranch(int bankID, int branchNUM, const char* addr) : bankID(bankID), branchNUM(branchNUM) { strcpy(this->addr, addr); }
@@ -129,7 +143,7 @@ vector<BankBranch*> Bank::getActualBranches(vector<BankBranch>& branches) { vect
 int Bank::getBranchesCount(vector<BankBranch>& branches) { int count = 0;for (auto& a : branches)if (a.getBranchID() == bankID)count++;return count; }
 void Bank::recalcAllMoneyFromBranches(vector<BankBranch>& branches) { vector<BankBranch*> tempBranches = getActualBranches(branches);int sum = getBranchesMoney(branches);int count = getBranchesCount(branches);if (count > 0) { for (auto& a : tempBranches)a->setBranchMoney(sum / count);tempBranches.clear(); } else cout << "There is zero branches"; }
 void Bank::WithdrawMoneyFromBranches(int num, vector<BankBranch>& branches) { vector<BankBranch*> tempbranch = getActualBranches(branches);int count = getBranchesCount(branches), sum = getBranchesMoney(branches), avg = sum / count;for (auto& a : tempbranch) { money += avg;a->decreaseBranchMoney(avg); } }
-void Bank::displayActualBranches(vector<BankBranch>& branches) { vector<BankBranch*> tempBranches = getActualBranches(branches);int count = 0; for (auto& a : tempBranches) { count++;cout <<'\n'<< count << ')'; a->displayBranchInfo(); }cout << "\n|-------------------|\n"; }
+void Bank::displayActualBranches(vector<BankBranch>& branches) { vector<BankBranch*> tempBranches = getActualBranches(branches);int count = 0;cout<<"Actual branches: "; for (auto& a : tempBranches) { count++;cout <<endl<< count << ')'; a->displayBranchInfo(); }cout << "\n|-------------------|\n"; }
 //|-----------------------------CLASSES----------------------------|
 
 
@@ -284,22 +298,32 @@ void BankAndBranchTestMenu() {
             }
             cout << "Enter bank number to link branch: "; cin >> bankid;
             if (bankid < 1 || bankid > banks.size()) { cout << "Invalid bank!\n"; continue; }
-            cout << "Enter branch address: ";char addr[50];cin.getline(addr, 50);
+            cout << "Enter branch address: ";char addr[50];cin.ignore();cin.getline(addr, 50);int branchNum;
             while (true) {
-                cout << "Enter branch number: ";int num;cin >> num;
-                BankBranch br(banks[bankid - 1].getBankID(), num, addr);
-                br.setBankPointer(&banks[bankid - 1]);
+                cout << "Enter branch number: ";
+                cin >> branchNum;
+                if (isBranchNumUnique(branchNum, bankid, branches)) {
+                    break;
+                }
+                else {
+                    cout << "Branch number already exists in this bank!\n";
+                }
+            }
+            BankBranch br(banks[bankid - 1].getBankID(), branchNum, addr);
+            br.setBankPointer(&banks[bankid - 1]);
+            while (true) {
                 int money;
-                while (true) {
-                    cout << "Enter ammount of money to transfer from main: "; cin >> money;
-                    int responce = br.getMoneyFromBank(money);
-                    if (responce == 0) {
-                        branches.push_back(br);
-                        cout << "Branch created and linked to bank ID: " << br.getBranchID() << endl;break;
-                    }
-                    else if (responce == 1) {
-                        cout << "Enter smaller ammount of money,bank dont have enough!\n";
-                    }
+                cout << "Enter amount of money to transfer from main: ";
+                cin >> money;
+
+                int response = br.getMoneyFromBank(money);
+                if (response == 0) {
+                    branches.push_back(br);
+                    cout << "Branch created and linked to bank ID: " << br.getBranchID() << endl;
+                    break;
+                }
+                else if (response == 1) {
+                    cout << "Enter smaller amount of money, bank doesn't have enough!\n";
                 }
             }
 
