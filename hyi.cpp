@@ -3,12 +3,68 @@
 #include <fstream>
 #include <vector>
 #include <cstring>
+#include <ctime>
 
+
+
+////////////////////// Logger class for logging messages to a file with timestamps///////////////////////
+class Logger {
+    std::ofstream ofs;
+public:
+    Logger(const char* filename) { ofs.open(filename, std::ios::app); }
+    template<typename T>
+    Logger& operator<<(const T& msg) {
+        time_t now = time(nullptr);
+        tm* lt = localtime(&now);
+        char buf[64];
+        std::strftime(buf, sizeof(buf), "%Y-%m-%d %H:%M:%S", lt);
+        ofs << "[" << buf << "] " << msg;
+        ofs.flush();
+        return *this;
+    }
+
+    // overload for stream manipulators like std::endl
+    Logger& operator<<(std::ostream& (*manip)(std::ostream&)) {
+        manip(ofs);
+        return *this;
+    }
+
+    // allow manual flush
+    void flush() {
+        ofs.flush();
+    }
+};
+////////////////////// Logger class for logging messages to a file with timestamps///////////////////////
+static Logger logger("log.txt");
+
+//клас WorkerPosada наслідує 2 класи робітник і посади і там буде дата прийняття і дата звільнення 
 using namespace std;
 
+typedef struct {
+    int year;
+    int month;
+    int day;
+    int hour;
+    int minute;
+    int second;
+} dtime;
+
+typedef struct {
+    char login[20];
+    char password[20];
+    char role[20];
+}account;
+account accounts[3]{
+    {"admin", "admin","admin"},
+    {"worker", "worker","worker"},
+    {"user", "user","user"}
+};
 //|-----------------------------CLASSES----------------------------|
 const int STR_SIZE = 32;
 class BankBranch;
+class Client;
+class Bank;
+char curUser[20];
 class Person {
     char name[STR_SIZE];
     char surname[STR_SIZE];
@@ -52,26 +108,50 @@ public:
 
     void setPosition(const char* pos) { strcpy(position, pos); }
     string getPosition() { return position; }
+
+    void showInfo() { cout << "Salary is: " << salary << "\nPosition is: " << position<<endl; }
 };
 class Worker : public Person {
     int ID=0;
     int WorkBranchID=0;
     int WorkBankID = 0;
-    char position[STR_SIZE];
+    vector<Position> positions;
+    BankBranch* workBranch = nullptr;
 public:
-    Worker() : ID(0) { position[0] = 0; }
-    Worker(const Person& p, const char* pos, int ID) : Person(p), ID(ID) {
-        strncpy(position, pos, STR_SIZE); position[STR_SIZE - 1] = 0;
+    Worker() : ID(0) {  }
+    Worker(Person& p, int ID, Position& position) : Person(p), ID(ID) { positions.push_back(position); }
+    void ShowInfo() { 
+        cout << "\n|-------------------|\nName: " << getName() << "\nSurname: " << getSurname() << "\nLastname: " << getLastname() << "\nID: " << ID << "\nPositions:\n"; 
+        for (int i = 0; i < positions.size(); ++i) { 
+            cout << i+1 << ") " << positions[i].getPosition() << ", salary: " << positions[i].getSalary(); 
+            if(i == positions.size()-1) cout << "  <-- active"; 
+            cout << endl; 
+        } 
     }
-    void ShowInfo() {
-        cout << "\n|-------------------|\nName: " << getName() << "\nSurname: " << getSurname() << "\nLastname: " << getLastname() << "\nID: " << ID << "\nPosition: " << position << endl;
-    }
-    int getID() const { return ID; }
-    string getPosition() const { return position; }
+    bool findWorkBranch(vector<BankBranch>& branches);
+    int getID() { return ID; }
+    void getPositionInfo() { if (!positions.empty())positions.back().showInfo();else cout << "This worker dont have positions!\n"; }
+    void addPosition(Position& position) { positions.push_back(position); }
+    void removePosition() { if(!positions.empty()) positions.pop_back(); }
+    void setPositionSalary(int idx, int salary) { if(idx>=0 && idx<(int)positions.size()) positions[idx].setSalary(salary); }
+    int getPositionCount() { return (int)positions.size(); }
+    void setWorkBankID(int id) { WorkBankID = id; }
+    void setWorkBranchID(int id) { WorkBranchID = id; }
+
+    //menu where worker do his work
+    void withdrawMoneyFromBranch(Client& client, int num, vector<BankBranch>& branches);
+    void putMoneyToBranch(Client& client, int num);
+};
+class WorkerPosada : public Worker , public Position {
+    dtime employdate{};
+    dtime firedate{};
+public:
+    WorkerPosada(Worker& worker, Position& position) :Worker(worker), Position(position) {}
 };
 class Client : public Person {
     int balance=0;
-    int clientID;
+    int clientID=0;
+    int bankID=0;
 public:
     Client() = default;
     Client(const Person& p, int clientID) : Person(p), clientID(clientID){}
@@ -120,9 +200,10 @@ public:
     BankBranch() = default;
     BankBranch(int bankID, int branchNUM, const char* addr) : bankID(bankID), branchNUM(branchNUM) { strcpy(this->addr, addr); }
 
-    int getMoneyFromBank(int num) { int responce = bank_ptr->transferMoneyToBranch(*this, num); if (responce == 0) { cout << "Transfered succesfully!\n"; return 0; } else if (responce == 1) { cout << "Bank dont have enough money!\n";return 1; } }
+    int getMoneyFromBank(int num) { int responce = bank_ptr->transferMoneyToBranch(*this, num); if (responce == 0) { cout << "Transfered succesfully!\n"; return 0; } else if (responce == 1) { cout << "Bank dont have enough money!\n";return 1; } else return 1; }
     void setBankID(int bankID) { this->bankID = bankID; }
     int getBranchID() { return bankID; }
+    int getBankID() { return bankID; }
     void setBankPointer(Bank* b) { bank_ptr = b; }
     void setBranchMoney(int num) { money = num; }
     int getBranchMoney() { return money; }
@@ -133,6 +214,7 @@ public:
 
     int WithdrawMoney(int num, Client& client, vector<BankBranch>& branches) { if (client.getClientBalance() < num)cout << "You dont have enough money";else { if (num < getBranchMoney()) { client.increaseClientBalance(num);setBranchMoney(getBranchMoney() - num); } else { if (bank_ptr->getAllBankMoney(branches) > num) { if (bank_ptr->WithdrawMoney(num, branches, client) == 1)return 1; } } } return 0; }
     //void PutMoney(int num, Client& cl, vector<BankBranch>& branches) { if (cl.getClientBalance() < num)cout << "You have no money!\n";else { if (num > this->money && num <= bank_ptr->getAllBankMoney(branches)); } }
+    void PutMoney(int num, Client& client) { client.increaseClientBalance(num);increaseBranchMoney(num); }
 
 };
 int Bank::WithdrawMoney(int num, vector<BankBranch>& branches, Client& client) { recalcAllMoneyFromBranches(branches);if (money >= num) { money -= num; client.increaseClientBalance(num); } else if (getAllBankMoney(branches) > num) { WithdrawMoneyFromBranches(num, branches);money -= num;client.increaseClientBalance(num); } else { cout << "Cannot withdraw: insufficient funds.\n";return 1; } return 0; }
@@ -144,6 +226,11 @@ int Bank::getBranchesCount(vector<BankBranch>& branches) { int count = 0;for (au
 void Bank::recalcAllMoneyFromBranches(vector<BankBranch>& branches) { vector<BankBranch*> tempBranches = getActualBranches(branches);int sum = getBranchesMoney(branches);int count = getBranchesCount(branches);if (count > 0) { for (auto& a : tempBranches)a->setBranchMoney(sum / count);tempBranches.clear(); } else cout << "There is zero branches"; }
 void Bank::WithdrawMoneyFromBranches(int num, vector<BankBranch>& branches) { vector<BankBranch*> tempbranch = getActualBranches(branches);int count = getBranchesCount(branches), sum = getBranchesMoney(branches), avg = sum / count;for (auto& a : tempbranch) { money += avg;a->decreaseBranchMoney(avg); } }
 void Bank::displayActualBranches(vector<BankBranch>& branches) { vector<BankBranch*> tempBranches = getActualBranches(branches);int count = 0;cout<<"Actual branches: "; for (auto& a : tempBranches) { count++;cout <<endl<< count << ')'; a->displayBranchInfo(); }cout << "\n|-------------------|\n"; }
+
+bool Worker::findWorkBranch(vector<BankBranch>& branches) { for (auto& a : branches)if (a.getBranchID() == WorkBranchID && a.getBankID() == WorkBankID) { workBranch = &a;return true; }return false; }
+
+void Worker::putMoneyToBranch(Client& client, int num) { workBranch->PutMoney(num, client); }
+void Worker::withdrawMoneyFromBranch(Client& client, int num, vector<BankBranch>& branches) { if (workBranch->WithdrawMoney(num, client, branches) == 1)cout << "Please top up your account!\n"; }
 //|-----------------------------CLASSES----------------------------|
 
 
@@ -187,39 +274,7 @@ void showMenu() {
     cout << "4. Save to file\n";
     cout << "5. Exit\n";
     cout << "6. Create worker from person\n";
-    cout << "7. BankTest\n";
-    cout << "8. BankTestingMenu\n";
-    cout << "Choose: ";
-}
-//тестове банк меню
-void BankTestMenu() {
-    cout << "\n==== MENU ====\n";
-    cout << "1. Enter money to bank\n";
-    cout << "2. Enter name for bank\n";
-    cout << "3. Save to file\n";
-    cout << "4. Read from file\n";
-    cout << "5. Create Bank\n";
-    cout << "6. List all banks\n";
-    cout << "7. Exit\n";
-}
-//тестове меню відділень
-void BranchTestMenu() {
-    cout << "\n==== MENU ====\n";
-    cout << "1. Enter money to bank\n";
-    cout << "2. Enter name for bank\n";
-    cout << "3. Save to file\n";
-    cout << "4. Read from file\n";
-    cout << "5. Create Bank\n";
-    cout << "6. List all banks\n";
-    cout << "7. Exit\n";
-}
-void clientTestMenu() {
-    cout << "\n==== MENU ====\n";
-    cout << "1. Load client from file\n";
-    cout << "2. Add new client\n";
-    cout << "3. Show all client\n";
-    cout << "4. Save to file\n";
-    cout << "5. Exit\n";
+    cout << "7. Bank & Branch Test\n";
     cout << "Choose: ";
 }
 //функція для знаходження актуального вказівника на головний банк по айді
@@ -261,7 +316,36 @@ void linkBank(vector<BankBranch>& branches,vector<Bank>& banks) {
         else { ++it; }
     }
 }
-
+dtime inputCtime() {
+    dtime ct;
+    cout << "Введіть рік: "; cin >> ct.year;
+    cout << "Введіть місяць (1-12): "; cin >> ct.month;
+    cout << "Введіть день (1-31): "; cin >> ct.day;
+    cout << "Введіть годину (0-23): "; cin >> ct.hour;
+    cout << "Введіть хвилину (0-59): "; cin >> ct.minute;
+    cout << "Введіть секунду (0-59): "; cin >> ct.second;
+    return ct;
+}
+dtime tmToCtime(const tm& timeinfo) {
+    dtime result;
+    result.year = timeinfo.tm_year + 1900;
+    result.month = timeinfo.tm_mon + 1;
+    result.day = timeinfo.tm_mday;
+    result.hour = timeinfo.tm_hour;
+    result.minute = timeinfo.tm_min;
+    result.second = timeinfo.tm_sec;
+    return result;
+}
+tm ctimeToTm(const dtime& ct) {
+    tm result = {};
+    result.tm_year = ct.year - 1900;
+    result.tm_mon = ct.month - 1;
+    result.tm_mday = ct.day;
+    result.tm_hour = ct.hour;
+    result.tm_min = ct.minute;
+    result.tm_sec = ct.second;
+    return result;
+}
 //|----------------------Bank & Branch Test Menu----------------------|
 void BankAndBranchTestMenu() {
     vector<Bank> banks;
@@ -293,7 +377,7 @@ void BankAndBranchTestMenu() {
             if (banks.empty()) { cout << "Create a bank first!\n"; continue; }
             int bankid;
             cout << "Available banks:\n";
-            for (size_t i = 0; i < banks.size(); ++i) {
+            for (int i = 0; i < banks.size(); ++i) {
                 cout << i + 1 << ") "; banks[i].showInfo();
             }
             cout << "Enter bank number to link branch: "; cin >> bankid;
@@ -350,7 +434,7 @@ void BankAndBranchTestMenu() {
             if (banks.empty()) { cout << "No banks.\n"; continue; }
             int bidx;
             cout << "Select bank to test: ";
-            for (size_t i = 0; i < banks.size(); ++i) {
+            for (int i = 0; i < banks.size(); ++i) {
                 cout << i + 1 << ") "; banks[i].showInfo();
             }
             cin >> bidx;
@@ -370,8 +454,8 @@ void BankAndBranchTestMenu() {
         else if (choice == 7) {
             if (branches.empty()) { cout << "No branches.\n"; continue; }
             int bridx;
-            cout << "Select branch to test: ";
-            for (size_t i = 0; i < branches.size(); ++i) {
+            cout << "Select branch to test: \n";
+            for (int i = 0; i < branches.size(); ++i) {
                 cout << i + 1 << ") Branch for BankID: " << branches[i].getBranchID()
                      << ", Money: " << branches[i].getBranchMoney() << endl;
             }
@@ -385,17 +469,154 @@ void BankAndBranchTestMenu() {
         }
         else if (choice == 8) {
             break;
+        }else if(choice == 9) {
+            int num; cout << "Enter 1 of you want to write to file, else read==2: "; cin >> num;
+            const char* bank_filename = "bank.bin";
+            const char* branch_filename ="bank_branch.bin";
+            while (true) {
+                if (num == 1) {
+                    writeToFile(bank_filename, banks);
+                    writeToFile(branch_filename, branches);
+                    cout << "Succesfully writed into file!\n";
+                    break;
+                }
+                else if (num == 2) {
+                    readFromFile(bank_filename, banks);
+                    readFromFile(branch_filename, branches);
+                    break;
+                }
+                else cout << "Wrong choice!\n";
+            }
         }
         else {
             cout << "Invalid option!\n";
         }
     }
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+int AdminMenu();
+int WorkerMenu();
+int UserMenu();
+int LoginMenu(
+    vector<Person>&person,
+    vector<Worker>&workers,
+    vector<Client>&clients,
+    vector<Bank>&banks,
+    vector<BankBranch>&branches,
+    vector<Position>&positions,
+    vector<WorkerPosada>&wposada
+) {
+    logger << "Login menu started\n"; logger.flush();
+    while (true) {
+        while (true) {//вибір ролі за якою логінитися
+            cout << "Enter your role!\n1)admin\n2)worker\n3)user\nEnter: ";int choice = 0;char role[20];cin >> choice;
+            if (choice == 1) { strcpy(role, "admin");break; }
+            else if (choice == 2) { strcpy(role, "worker");break; }
+            else if (choice == 3) { strcpy(role, "user");break; }
+            else cout << "Wrong choice!";
+        }
+        while (true) {//вхід в аккаунт за роллю
+            bool found=false;
+            cout << "Now enter login";char login[20];cin.getline(login, 20);
+            cout << "Now enter password";char password[20];cin.getline(password, 20);
+            for (auto& a : accounts) {
+                if (a.role == "admin" && strcmp(a.login, login) == 0 && strcmp(a.password, password)) { AdminMenu(person,workers,clients,banks,branches,positions,wposada);break; }
+                else if (a.role == "worker" && strcmp(a.login, login) == 0 && strcmp(a.password, password)){ WorkerMenu();break; }
+                else if (a.role == "user" && strcmp(a.login, login) == 0 && strcmp(a.password, password)) { UserMenu();break; }
+            }if (found)break;else { cout << "Enter correct login&pass!"; }
+        }
+    }
+}
+
+
+
+
+int AdminMenu(
+    vector<Person>& person,
+    vector<Worker>& workers,
+    vector<Client>& clients,
+    vector<Bank>& banks,
+    vector<BankBranch>& branches,
+    vector<Position>& positions,
+    vector<WorkerPosada>& wposada
+) {
+    logger << "User entered as admin!";
+    return 0;
+}
+
+
+
+
+int WorkerMenu() { return 0; }
+
+
+
+
+int UserMenu(vector<Person>&persons) {
+    //|----------------------Identity----------------------|
+    Person curPerson;
+    cout << "Who are you?";int i = 0;for (auto& a : persons) { cout<<i+1<<')' << a << endl; }
+    curPerson = persons[i];logger << "Logged as default user: " << curPerson;
+    cout << "You are logged as: " << curPerson << endl;
+    //|----------------------Identity----------------------|
+    while (true) {
+        cout << "1)Bank operations\n2)Exit\nEnter: ";int choice;cin >> choice;
+    }
+    return 0;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 //|----------------------Bank & Branch Test Menu----------------------|
 
 //|----------------------Functions----------------------|
 
 int main() {
+    vector<Position> position;
     vector<Person> people;
     vector<Worker> worker;
     vector<Client> client;
@@ -408,8 +629,11 @@ int main() {
     const char* client_filename = "client.bin";
     int choice;
 
+
 //|-------------AUTOSTART--------------|
+    LoginMenu();
     linkBank(branch,bank);
+    Position unemployedPos;unemployedPos.setSalary(0);unemployedPos.setPosition("unemployed");
 //|-------------AUTOSTART--------------|  
 
     while (true) {
@@ -441,7 +665,7 @@ int main() {
                         cout << p << endl;
                     }
                 }
-            else if (lol == 2)
+            else if (lol == 2) 
                 if (worker.empty()) {
                     cout << "No worker in memory.\n";
                 }
@@ -463,7 +687,7 @@ int main() {
             break;
         }
         else if (choice == 6) {
-            int count = 1, chose; cout << "Chose person to do worker:\n"; char position[STR_SIZE];
+            int count = 1, chose; cout << "Chose person to do worker:\n";
             for (auto& a : people) {
                 cout << count << ")" << "Name: " << a.getName() << "\nSurname: " << a.getSurname() << "\nLastname: " << a.getLastname() << endl; count++;
             } cout << count << ")Create new person\nchoice: ";
@@ -473,74 +697,59 @@ int main() {
                 newPerson.inputFromConsole();
                 people.push_back(newPerson);
                 cout << "Person added.\n";
-                cout << "Enter position: ";
-                cin >> position;
+                char posName[STR_SIZE]; int salary;
+                cout << "Enter position name: "; cin >> posName;
+                cout << "Enter salary: "; cin >> salary;
+                Position pos; pos.setPosition(posName); pos.setSalary(salary);
                 int tempid;
                 while (true) {
                     cout << "Enter ID: "; cin >> tempid; if (isIDUnique(tempid, worker)) break; cout << "Enter another id thats ID corrupted: ";
                 }
-                Worker tempWorker(newPerson, position, tempid);
+                Worker tempWorker(people.back(), tempid, pos);
                 worker.push_back(tempWorker);
             }
             else {
-                cout << "Enter position: ";
-                cin >> position;
+                char posName[STR_SIZE]; int salary;
+                cout << "Enter position name: "; cin >> posName;
+                cout << "Enter salary: "; cin >> salary;
+                Position pos; pos.setPosition(posName); pos.setSalary(salary);
+
+                int bankChoice=0;
+                if (bank.empty()) {
+                    cout<<"No banks available. Create one first.\n";
+                } else {
+                    cout<<"Select bank:\n";
+                    for(int i=0;i<bank.size();++i)
+                        cout<<i+1<<") "<<bank[i].getBankID()<<" - "<<endl;
+                    cin>>bankChoice;
+                }
+                int branchChoice=0;
+                vector<BankBranch*> filtered;
+                for(auto& br: branch)
+                    if(bankChoice>=1 && bankChoice<=bank.size() && br.getBankID()==bank[bankChoice-1].getBankID())
+                        filtered.push_back(&br);
+                if(filtered.empty()) {
+                    cout<<"No branches for that bank. Create one first.\n";
+                } else {
+                    cout<<"Select branch:\n";
+                    for(int i=0;i<filtered.size();++i)
+                        cout<<i+1<<") "<<filtered[i]->getBranchNum()<<endl;
+                    cin>>branchChoice;
+                }
+
                 int tempid;
                 while (true) {
                     cout << "Enter ID: "; cin >> tempid; if (isIDUnique(tempid, worker)) break; cout << "Enter another id thats ID corrupted: ";
                 }
-                Worker tempWorker(people[chose - 1], position, tempid);
+
+                Worker tempWorker(people[chose - 1], tempid, pos);
+                if(bankChoice>0) tempWorker.setWorkBankID(bank[bankChoice-1].getBankID());
+                if(branchChoice>0) tempWorker.setWorkBranchID(filtered[branchChoice-1]->getBranchNum());
+                tempWorker.findWorkBranch(branch);
                 worker.push_back(tempWorker);
             }
         }
         else if (choice == 7) {
-            while (true) {
-                BankTestMenu();int bankchoice;
-                cout << "Enter your choice: ";cin >> bankchoice;
-                if (bankchoice == 1) {
-                    int lol = 1, prikol, money;
-                    for (auto& a : bank) {
-                        cout << lol << ')';
-                        a.showInfo();
-                        cin >> prikol;lol++;
-                        cout << "Enter ammount of money: ";cin >> money;
-                        bank[prikol].setMoney(money);
-                    }
-                }
-                else if (bankchoice == 2) {
-                    int lol = 1, prikol;char name[20];
-                    for (auto& a : bank) {
-                        cout << lol << ')';
-                        a.showInfo();
-                        cin >> prikol;lol++;
-                        cout << "Enter name: ";cin >> name;
-                        bank[prikol].setName(name);
-                    }
-                }
-                else if (bankchoice == 3) {
-                    writeToFile(bank_filename, bank);
-                }
-                else if (bankchoice == 4) {
-                    readFromFile(bank_filename, bank);
-                    linkBank(branch, bank);
-                }
-                else if (bankchoice == 5) {
-                    int money;char name[20];cout << "Enter amout of money: ";cin >> money;cout << "Enter name: ";cin >> name;cin.ignore();
-                    Bank newBank(money, name);
-                    bank.push_back(newBank);
-                }
-                else if (bankchoice == 6) {
-                    if (bank.empty())cout << "There is no banks...\n";
-                    else for (auto& a : bank) {
-                        a.showInfo();
-                    }
-                }
-                else if (bankchoice == 7)break;
-                else {
-                    cout << "Invalid option!\n";
-                }
-            }
-        }else if(choice == 8) {
             BankAndBranchTestMenu();
         }
         else {
