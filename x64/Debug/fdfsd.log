@@ -1,3 +1,3 @@
 ﻿  hyi.cpp
-C:\Users\DeFexGG\source\repos\fdfsd\fdfsd\hyi.cpp(372,38): warning C4267: 'argument': conversion from 'size_t' to 'int', possible loss of data
+C:\Users\DeFexGG\source\repos\fdfsd\fdfsd\hyi.cpp(848,9): warning C4101: 'choice': unreferenced local variable
   fdfsd.vcxproj -> C:\Users\DeFexGG\source\repos\fdfsd\x64\Debug\fdfsd.exe
