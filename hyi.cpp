@@ -69,18 +69,23 @@ char curUser[20];
 dtime tmToCtime(const tm& timeinfo);
 class Credit {
     int amount;
+    int clientID;
     dtime take_date;
     dtime return_date;
     int percent;
 public:
-    Credit(int amount, dtime take_date, dtime return_date, int percent) : amount(amount), take_date(take_date), return_date(return_date), percent(percent) {}
+    Credit() = default;
+    Credit(int amount, dtime take_date, dtime return_date, int percent,int clientID) : amount(amount), take_date(take_date), return_date(return_date), percent(percent),clientID(clientID) {}
     void showInfo() {
         cout << "Credit amount: " << amount << "\nTake date: " << take_date.year << "-" << take_date.month << "-" << take_date.day
             << " " << take_date.hour << ":" << take_date.minute << ":" << take_date.second
             << "\nReturn date: " << return_date.year << "-" << return_date.month << "-" << return_date.day
             << " " << return_date.hour << ":" << return_date.minute << ":" << return_date.second
-            << "\nPercent: " << percent << "%" << endl;
+            << "\nPercent: " << percent << "%" << endl
+            << "\nClientID: " << clientID << endl;
     }
+    void DecreaseCredit(int num) { amount -= num; }
+    int getClientID() { return amount; }
 };
 static vector<Credit> credits;
 class Person {
@@ -110,6 +115,8 @@ public:
         return os << p.name << " " << p.surname << " " << p.lastname;
     }
 
+
+    string getFullName() const { return string(name) + " " + string(surname) + " " + string(lastname); }
     string getName() const { return name; }
     string getSurname() const { return surname; }
     string getLastname() const { return lastname; }
@@ -130,19 +137,19 @@ public:
     void showInfo() { cout << "Salary is: " << salary << "\nPosition is: " << position<<endl; }
 };
 class Worker : public Person {
-    int ID=0;
-    int WorkBranchID=0;
+    int ID = 0;
+    int WorkBranchID = 0;
     int WorkBankID = 0;
     // positions storage removed; position history managed by WorkerPosada
     BankBranch* workBranch = nullptr;
 public:
-    Worker() : ID(0) {  }
+    Worker() : ID(0) {}
     Worker(const Person& p, int ID) : Person(p), ID(ID) {}
     void ShowInfo() {
         cout << "\n|-------------------|\nName: " << getName() \
-             << "\nSurname: " << getSurname()\
-             << "\nLastname: " << getLastname() \
-             << "\nID: " << ID << endl;
+            << "\nSurname: " << getSurname()\
+            << "\nLastname: " << getLastname() \
+            << "\nID: " << ID << endl;
     }
     bool findWorkBranch(vector<BankBranch>& branches);
     int getID() { return ID; }
@@ -157,7 +164,7 @@ public:
     void giveCreditToBranch(Client& client, int amount, int percent, int termDays);
     // allow admin to change worker ID
     void setID(int id) { ID = id; }
-    void setWorkBranch(BankBranch* branch) { workBranch = branch; } 
+    void setWorkBranch(BankBranch* branch);
 };
 class WorkerPosada : public Worker, public Position {
     dtime employDate{};
@@ -294,7 +301,7 @@ public:
         return os << "Branch bankID: " << b.bankID << "\nBranch money: " << b.money << "\nBranch address: " << b.addr << "\nBranch num: " << b.branchNUM;
     }
 
-    int WithdrawMoney(int num, Client& client, vector<BankBranch>& branches) { if (client.getClientBalance() <= num)cout << "You dont have enough money";else { if (num < getBranchMoney()) { client.increaseClientBalance(num);setBranchMoney(getBranchMoney() - num); // record transaction
+    int WithdrawMoney(int num, Client& client, vector<BankBranch>& branches) { if (client.getClientBalance() <= num)cout << "You dont have enough money";else { if (num < getBranchMoney()) { client.decreaseClientBalance(num);setBranchMoney(getBranchMoney() - num); // record transaction
                 dtime dt = getCurrentTime();
                 char from_str[20], to_str[20];
                 snprintf(from_str, 20, "branch%d", branchNUM);
@@ -318,7 +325,8 @@ public:
         time_t tt = time(nullptr) + termDays * 86400;
         dtime ret = tmToCtime(*localtime(&tt));
         client.increaseClientBalance(amount);
-        credits.emplace_back(amount, take, ret, percent);
+        credits.emplace_back(amount, take, ret, percent,client.getClientID());//tyt
+        //доробити конструктор і сохраняти ClientID
         // record transaction
         char from_str[20], to_str[20];
         snprintf(from_str,20,"branch%d",branchNUM);
@@ -342,6 +350,7 @@ bool Worker::findWorkBranch(vector<BankBranch>& branches) { for (auto& a : branc
 void Worker::putMoneyToBranch(Client& client, int num) { workBranch->PutMoney(num, client); }
 void Worker::withdrawMoneyFromBranch(Client& client, int num, vector<BankBranch>& branches) { if (workBranch->WithdrawMoney(num, client, branches) == 1)cout << "Please top up your account!\n"; }
 void Worker::giveCreditToBranch(Client& client, int amount, int percent, int termDays) { workBranch->GiveCredit(amount, client, percent, termDays); }
+void Worker::setWorkBranch(BankBranch * branch) { workBranch = branch;WorkBranchID = branch->getBranchID();WorkBankID = branch->getBankID(); }
 //|-----------------------------CLASSES----------------------------|
 
 
@@ -452,6 +461,8 @@ int AdminPeopleMenu(vector<Person>& person) {
             cout << "Index to edit: "; int i; cin >> i;
             if (i >= 1 && i <= (int)person.size()) person[i-1].inputFromConsole();
         } else if (ch == 4) {
+            int g = 1;
+            for (auto& p : person) cout<<g++<<')' << p << endl;
             cout << "Index to remove: "; int i; cin >> i;
             if (i >= 1 && i <= (int)person.size()) person.erase(person.begin() + i - 1);
         } else if (ch == 5) {
@@ -515,6 +526,8 @@ int AdminWorkersMenu(vector<Person>& person, vector<Worker>& workers, Bank& bank
             // record position history
             wposada.emplace_back(w, pos, hireDate);
         } else if (ch == 3) {
+            int g = 1;
+            for (auto& p : workers) cout << g++ << ')' << p << endl;
             cout << "Index to remove: "; int i; cin >> i;
             if (i >= 1 && i <= (int)workers.size()) {
                 workers.erase(workers.begin() + i - 1);
@@ -549,6 +562,8 @@ int AdminClientsMenu(vector<Person>& person, vector<Client>& clients) {
             cout << "Enter client ID: "; int id; cin >> id;
             clients.emplace_back(person[pi-1], id);
         } else if (ch == 3) {
+            int g = 1;
+            for (auto& p : clients) cout << g++ << ')' << p << endl;
             cout << "Index to remove: "; int i; cin >> i;
             if (i >= 1 && i <= (int)clients.size()) clients.erase(clients.begin() + i - 1);
         } else if (ch == 4) {
@@ -623,6 +638,8 @@ int AdminBranchesMenu(vector<BankBranch>& branches, Bank& bank) {
                 }
             }
         } else if (ch == 3) {
+            int g = 1;
+            if (!branches.empty())for (auto& p : branches) cout << g++ << ')' << p << endl;else cout << "There is no branches!\n";
             cout << "Index to remove: "; int i; cin >> i;
             if (i >= 1 && i <= (int)branches.size()) branches.erase(branches.begin() + i - 1);
         } else if (ch == 4) {
@@ -743,8 +760,13 @@ int UserMenu(vector<Client>& clients,
     // Select worker at branch
     vector<Worker*> bw;
     for (auto& w : workers)
-        if (w.getWorkBankID() == br.getBankID() && w.getWorkBranchID() == br.getBranchNum())
-            bw.push_back(&w);
+        if (w.getWorkBankID() == br.getBankID() && w.getWorkBranchID() == br.getBranchID()) {
+            int b;
+            std::cout << "Worker FullName: " << w.getFullName() << ", Client FullName: " << curCl.getFullName() << std::endl;
+            if (b=strcmp(w.getFullName().c_str(), curCl.getFullName().c_str()) != 0)
+                bw.push_back(&w);
+            cout << "\nStrCmp returned: " << b<<endl;
+        }
     if (bw.empty()) { cout << "No worker available at this branch.\n"; return 1; }
     cout << "Select worker:\n";
     for (int i = 0; i < bw.size(); ++i)
@@ -752,6 +774,8 @@ int UserMenu(vector<Client>& clients,
     int wi; cin >> wi;
     if (wi < 1 || wi > bw.size()) { cout << "Invalid worker\n"; return 1; }
     Worker* serv = bw[wi-1];
+    // link the worker to its branch if not already linked
+    if (!serv->findWorkBranch(branches)) { cout << "Error: Worker not linked to branch\n"; return 1; }
 
     //|----------------------User Operations---------------------|
     while (true) {
@@ -761,7 +785,9 @@ int UserMenu(vector<Client>& clients,
              << "3) Deposit money\n"
              << "4) Show transaction history\n"
              << "5) Take credit\n"
-             << "6) Exit\n"
+             << "6) Repay credit\n"
+             << "7) Show credit status\n"
+             << "8) Exit\n"
              << "Enter: "; int choice; cin >> choice;
         if (choice == 1) {
             cout << "Your balance: " << curCl.getClientBalance() << "\n";
@@ -779,6 +805,22 @@ int UserMenu(vector<Client>& clients,
             cout << "Term days: "; int days; cin >> days;
             serv->giveCreditToBranch(curCl, amt, pct, days);
         } else if (choice == 6) {
+            cout << "Amount to repay: "; int repayAmt; cin >> repayAmt;
+            // adjust client balance and record repayment
+            if (curCl.getClientBalance() >= repayAmt) {
+                curCl.decreaseClientBalance(repayAmt);
+                dtime dt = getCurrentTime();
+                transactions.emplace_back(repayAmt, dt, "repay", "client", "bank", curCl.getClientID());
+                for (auto& a : credits) { if (a.getClientID() == curCl.getClientID())a.DecreaseCredit(repayAmt); }
+                cout << "Repayment of " << repayAmt << " processed.\n";
+            } else {
+                cout << "Insufficient balance to repay.\n";
+            }
+        } else if (choice == 7) {
+            cout << "\n=== Your Credits ===\n";
+            for (auto& cr : credits) cr.showInfo();
+            cout << "=== End of Credits ===\n";
+        } else if (choice == 8) {
             break;
         } else {
             cout << "Wrong choice!\n";
@@ -805,11 +847,22 @@ int UserMenu(vector<Client>& clients,
 
 
 
-void linkWorkers(vector<BankBranch> branches,vector<Worker> workers) {
+void linkWorkers(vector<BankBranch>& branches, vector<Worker>& workers) {
     for (auto& a : workers) {
+        bool found = false;
         for (auto& b : branches) {
             if (a.getWorkBankID() == b.getBankID() && a.getWorkBranchID() == b.getBranchNum()) {
-                a.setWorkBranch(&b);
+                a.setWorkBranch(&b);found = true;
+                cout << "\nFound worker!\n"; // видаліть або закоментуйте
+                cout << "\nFound branch!\n"; // видаліть або закоментуйте
+            }
+        }if(!found) {
+            cout << "\nWorker not found in any branch!\nLink worker to another branch!\n";int num = 0; // видаліть або закоментуйте
+            for(auto&a:branches){
+                cout <<num<<')'<< a;
+            }cout << "Enter branch number: ";cin >> num;
+            if (num >= 0 && num < branches.size()) {
+                a.setWorkBranch(&branches[num]);
                 cout << "\nFound branch!\n"; // видаліть або закоментуйте
             }
         }
@@ -845,17 +898,19 @@ int main() {
     const char* branch_filename = "branch.bin";
     const char* client_filename = "client.bin";
     const char* transaction_filename = "transaction.bin";
+    const char* credit_filename = "credit.bin";
     int choice;
 
     SetConsoleCP(1251);
     SetConsoleOutputCP(1251);
 //|-------------AUTOSTART--------------|
     readFromFile(filename, people);
-    readFromFile(worker_filename, worker);for (auto& w : worker) w.findWorkBranch(branch);
+    readFromFile(worker_filename, worker);
     readFromFile(branch_filename, branch);
     readFromFile(client_filename, client);
     readFromFile(workerposada_filename, wposada);
     readFromFile(transaction_filename, transactions);
+    readFromFile(credit_filename, credits);
     InitBank(bank);
     bank.setName("Bank of Ukraine");
     bank.setBankID(1);
@@ -991,6 +1046,7 @@ int main() {
     writeToFile(client_filename, client);
     writeToFile(workerposada_filename, wposada);
     writeToFile(transaction_filename, transactions);
+    writeToFile(credit_filename, credits);
     SaveBank(bank);
     cout << "Data saved to files.\n";
     return 0;
