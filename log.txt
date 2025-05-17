@@ -128,3 +128,14 @@
 [2025-05-17 18:35:05] Logged as user: [2025-05-17 18:35:05] defex[2025-05-17 18:35:05]  [2025-05-17 18:35:05] client
 [2025-05-17 18:42:54] Login menu started
 [2025-05-17 18:42:58] Logged as user: [2025-05-17 18:42:58] defex[2025-05-17 18:42:58]  [2025-05-17 18:42:58] client
+[2025-05-17 18:52:10] Login menu started
+[2025-05-17 18:52:13] Logged as user: [2025-05-17 18:52:13] defex[2025-05-17 18:52:13]  [2025-05-17 18:52:13] client
+[2025-05-17 18:55:01] Login menu started
+[2025-05-17 18:55:06] Logged as user: [2025-05-17 18:55:06] defex[2025-05-17 18:55:06]  [2025-05-17 18:55:06] client
+[2025-05-17 18:57:16] Login menu started
+[2025-05-17 18:57:20] Logged as user: [2025-05-17 18:57:20] defex[2025-05-17 18:57:20]  [2025-05-17 18:57:20] client
+[2025-05-17 19:07:11] Login menu started
+[2025-05-17 19:07:18] User entered as admin![2025-05-17 19:11:08] Login menu started
+[2025-05-17 19:11:10] User entered as admin![2025-05-17 19:14:09] Login menu started
+[2025-05-17 19:14:15] User entered as admin![2025-05-17 19:16:04] Login menu started
+[2025-05-17 19:16:08] User entered as admin!
