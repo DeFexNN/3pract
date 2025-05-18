@@ -138,4 +138,11 @@
 [2025-05-17 19:07:18] User entered as admin![2025-05-17 19:11:08] Login menu started
 [2025-05-17 19:11:10] User entered as admin![2025-05-17 19:14:09] Login menu started
 [2025-05-17 19:14:15] User entered as admin![2025-05-17 19:16:04] Login menu started
-[2025-05-17 19:16:08] User entered as admin!
+[2025-05-17 19:16:08] User entered as admin![2025-05-17 19:20:36] Login menu started
+[2025-05-17 19:20:39] User entered as admin![2025-05-18 16:09:56] Login menu started
+[2025-05-18 16:10:07] Login menu started
+[2025-05-18 16:10:11] User entered as admin![2025-05-18 16:11:51] Login menu started
+[2025-05-18 16:11:54] User entered as admin![2025-05-18 16:18:43] Login menu started
+[2025-05-18 16:19:15] Logged as user: [2025-05-18 16:19:15] defex[2025-05-18 16:19:15]  [2025-05-18 16:19:15] worker
+[2025-05-18 16:25:45] Login menu started
+[2025-05-18 16:25:48] Logged as user: [2025-05-18 16:25:48] defex[2025-05-18 16:25:48]  [2025-05-18 16:25:48] worker
