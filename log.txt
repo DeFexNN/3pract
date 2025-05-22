@@ -212,4 +212,14 @@
 [2025-05-23 02:48:04] linkBank: Linked branch number [2025-05-23 02:48:04] 1[2025-05-23 02:48:04]  to bank ID [2025-05-23 02:48:04] 1
 [2025-05-23 02:48:04] Login menu started
 [2025-05-23 02:48:19] Login menu started
-[2025-05-23 02:48:26] User entered as worker!
+[2025-05-23 02:48:26] User entered as worker![2025-05-23 02:50:46] linkBank: Linking branches to bank ID [2025-05-23 02:50:46] 1
+[2025-05-23 02:50:46] linkBank: Linked branch number [2025-05-23 02:50:46] 1[2025-05-23 02:50:46]  to bank ID [2025-05-23 02:50:46] 1
+[2025-05-23 02:50:46] Login menu started
+[2025-05-23 02:51:10] linkBank: Linking branches to bank ID [2025-05-23 02:51:10] 1
+[2025-05-23 02:51:10] linkBank: Linked branch number [2025-05-23 02:51:10] 1[2025-05-23 02:51:10]  to bank ID [2025-05-23 02:51:10] 1
+[2025-05-23 02:51:10] Login menu started
+[2025-05-23 02:51:25] Login menu started
+[2025-05-23 02:51:35] linkBank: Linking branches to bank ID [2025-05-23 02:51:35] 1
+[2025-05-23 02:51:35] linkBank: Linked branch number [2025-05-23 02:51:35] 1[2025-05-23 02:51:35]  to bank ID [2025-05-23 02:51:35] 1
+[2025-05-23 02:51:35] Login menu started
+[2025-05-23 02:51:38] User entered as worker!
