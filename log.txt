@@ -146,3 +146,22 @@
 [2025-05-18 16:19:15] Logged as user: [2025-05-18 16:19:15] defex[2025-05-18 16:19:15]  [2025-05-18 16:19:15] worker
 [2025-05-18 16:25:45] Login menu started
 [2025-05-18 16:25:48] Logged as user: [2025-05-18 16:25:48] defex[2025-05-18 16:25:48]  [2025-05-18 16:25:48] worker
+[2025-05-18 17:03:20] linkBank: Linking branches to bank ID [2025-05-18 17:03:20] 1
+[2025-05-18 17:03:20] linkBank: Linked branch number [2025-05-18 17:03:20] 1[2025-05-18 17:03:20]  to bank ID [2025-05-18 17:03:20] 1
+[2025-05-18 17:03:20] Login menu started
+[2025-05-18 17:04:22] Logged as user: [2025-05-18 17:04:22] defex[2025-05-18 17:04:22]  [2025-05-18 17:04:22] worker
+[2025-05-18 17:05:18] linkBank: Linking branches to bank ID [2025-05-18 17:05:18] 1
+[2025-05-18 17:05:18] linkBank: Linked branch number [2025-05-18 17:05:18] 1[2025-05-18 17:05:18]  to bank ID [2025-05-18 17:05:18] 1
+[2025-05-18 17:05:18] Login menu started
+[2025-05-18 17:05:26] User entered as admin![2025-05-18 17:05:37] AdminPeopleMenu: Entered People Menu
+[2025-05-18 17:05:41] AdminPeopleMenu: User selected option [2025-05-18 17:05:41] 5
+[2025-05-18 17:05:41] AdminPeopleMenu: Exiting People Menu
+[2025-05-18 17:32:45] linkBank: Linking branches to bank ID [2025-05-18 17:32:45] 1
+[2025-05-18 17:32:45] linkBank: Linked branch number [2025-05-18 17:32:45] 1[2025-05-18 17:32:45]  to bank ID [2025-05-18 17:32:45] 1
+[2025-05-18 17:32:45] Login menu started
+[2025-05-18 17:32:49] User entered as worker![2025-05-23 01:54:47] linkBank: Linking branches to bank ID [2025-05-23 01:54:47] 1
+[2025-05-23 01:54:47] linkBank: Linked branch number [2025-05-23 01:54:47] 1[2025-05-23 01:54:47]  to bank ID [2025-05-23 01:54:47] 1
+[2025-05-23 01:54:47] Login menu started
+[2025-05-23 02:00:22] linkBank: Linking branches to bank ID [2025-05-23 02:00:22] 1
+[2025-05-23 02:00:22] linkBank: Linked branch number [2025-05-23 02:00:22] 1[2025-05-23 02:00:22]  to bank ID [2025-05-23 02:00:22] 1
+[2025-05-23 02:00:22] Login menu started
