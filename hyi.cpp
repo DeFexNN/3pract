@@ -54,6 +54,7 @@ class Account {
     char password[20];
     char role[20];
 public:
+    Account() = default;
     Account(const char* login, const char* password, const char* role) { strcpy(this->login, login);strcpy(this->password, password);strcpy(this->role, role); }
     const char* getLogin() { return login; }
     const char* getPassword() { return password; }
@@ -861,7 +862,9 @@ int LoginMenu(
         }
 
     } else if (choice == 2) {
+        bool logged = false;
         while(true) {
+            if (logged) { LoginMenu(person, workers, clients, bank, branches, wposada);break; }
             cout << "1)Register as user\n2)Register as worker\n3)Exit\nEnter choice: "; int ch; cin >> ch;
             if(ch==1){
                 cout << "Enter login: ";char login[20];cin >> login;
@@ -871,15 +874,17 @@ int LoginMenu(
             }
             else if (ch == 2) {
                 while (true) {
-                    cout << "Are you registered in bot?\n1)Yes\n2)No\nEnter: ";int rees; cin >> rees;
+                    if (logged)break;
+                    cout << "Are you registered in bot?\n1)Yes\n2)No\n3)Exit\nEnter: ";int rees; cin >> rees;
                     if (rees == 1) {
-                        int randNum = rand() & 255;
+                        srand(time(NULL));
+                        int randNum = rand()%201-100;
                         char text[20];
                         sprintf(text, "%d", randNum);
                         while (true) {
                             cout << "Enter your telegram id registered in our company: ";cin >> chat_id;bool found = false;
                             for (auto& a : TelegramVec) { if (a.GetID() == chat_id)found = true; }
-                            if (!found)cout << "Your telegram dont exist in database you not employee";
+                            if (!found) { cout << "Your telegram dont exist in database you not employee";break; }
                             else {
                                 string cmd = "curl -s -X POST \"https://api.telegram.org/bot" +
                                     string(token) + "/sendMessage\" -d \"chat_id=" +
@@ -889,17 +894,20 @@ int LoginMenu(
                                 cout << "Enter login: ";char login[20];cin >> login;
                                 cout << "Enter password: ";char password[20];cin >> password;
                                 Account newUserAcc(login, password, "worker");accounts.push_back(newUserAcc);
-                                cout << "Succesfully registered as worker!\n";break;
+                                cout << "Succesfully registered as worker!\n";logged = true;break;
                             }
+                            if (logged)break;
                         }
                     }
                     else if (rees == 2) {
-                        cout << "If your ID entered in Database by admin press start in @DeFexDownloader_Bot\nElse get OUT!!!";continue;
+                        cout << "If your ID entered in Database by admin press start in @DeFexDownloader_Bot\nElse get OUT!!!\n";continue;
                     }
                     else if (rees == 3)break;
                     else cout << "Wrong choice!";
+                    if (logged)break;
                 }
             }
+            else if (ch == 3) { LoginMenu(person, workers, clients, bank, branches, wposada); }
         }
     }
         return 0;
