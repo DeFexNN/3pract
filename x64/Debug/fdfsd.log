@@ -1,1 +1,13 @@
-﻿  fdfsd.vcxproj -> C:\Users\DeFexGG\source\repos\fdfsd\x64\Debug\fdfsd.exe
+﻿  hyi.cpp
+C:\Users\DeFexGG\source\repos\fdfsd\fdfsd\hyi.cpp(1063,37): error C2661: 'Credit::Credit': no overloaded function takes 4 arguments
+      C:\Users\DeFexGG\source\repos\fdfsd\fdfsd\hyi.cpp(1063,37):
+      while trying to match the argument list '(int, int, int, int)'
+  
+C:\Users\DeFexGG\source\repos\fdfsd\fdfsd\hyi.cpp(1071,70): error C2039: 'getCreditID': is not a member of 'Credit'
+      C:\Users\DeFexGG\source\repos\fdfsd\fdfsd\hyi.cpp(98,7):
+      see declaration of 'Credit'
+  
+C:\Users\DeFexGG\source\repos\fdfsd\fdfsd\hyi.cpp(1073,31): error C2039: 'repayCredit': is not a member of 'Credit'
+      C:\Users\DeFexGG\source\repos\fdfsd\fdfsd\hyi.cpp(98,7):
+      see declaration of 'Credit'
+  
