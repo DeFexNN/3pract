@@ -1,5 +1,1 @@
-﻿  hyi.cpp
-C:\Users\DeFexGG\source\repos\fdfsd\fdfsd\hyi.cpp(121,26): warning C4244: '*=': conversion from 'double' to 'int', possible loss of data
-C:\Users\DeFexGG\source\repos\fdfsd\fdfsd\hyi.cpp(880,35): warning C4244: 'argument': conversion from 'time_t' to 'unsigned int', possible loss of data
-C:\Users\DeFexGG\source\repos\fdfsd\fdfsd\hyi.cpp(1188,9): warning C4101: 'choice': unreferenced local variable
-  fdfsd.vcxproj -> C:\Users\DeFexGG\source\repos\fdfsd\x64\Debug\fdfsd.exe
+﻿  fdfsd.vcxproj -> C:\Users\DeFexGG\source\repos\fdfsd\x64\Debug\fdfsd.exe

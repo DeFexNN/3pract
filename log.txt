@@ -222,4 +222,103 @@
 [2025-05-23 02:51:35] linkBank: Linking branches to bank ID [2025-05-23 02:51:35] 1
 [2025-05-23 02:51:35] linkBank: Linked branch number [2025-05-23 02:51:35] 1[2025-05-23 02:51:35]  to bank ID [2025-05-23 02:51:35] 1
 [2025-05-23 02:51:35] Login menu started
-[2025-05-23 02:51:38] User entered as worker!
+[2025-05-23 02:51:38] User entered as worker![2025-05-23 17:36:09] linkBank: Linking branches to bank ID [2025-05-23 17:36:09] 1
+[2025-05-23 17:36:09] linkBank: Linked branch number [2025-05-23 17:36:09] 1[2025-05-23 17:36:09]  to bank ID [2025-05-23 17:36:09] 1
+[2025-05-23 17:36:09] Login menu started
+[2025-05-23 18:41:47] linkBank: Linking branches to bank ID [2025-05-23 18:41:47] 1
+[2025-05-23 18:41:47] Login menu started
+[2025-05-23 18:41:59] linkBank: Linking branches to bank ID [2025-05-23 18:41:59] 1
+[2025-05-23 18:41:59] Login menu started
+[2025-05-23 18:42:03] User entered as admin![2025-05-23 18:42:11] AdminPeopleMenu: Entered People Menu
+[2025-05-23 18:42:12] AdminPeopleMenu: User selected option [2025-05-23 18:42:12] 2
+[2025-05-23 18:42:12] AdminPeopleMenu: Adding a new person
+[2025-05-23 18:42:30] AdminPeopleMenu: Person added successfully
+[2025-05-23 18:42:32] AdminPeopleMenu: User selected option [2025-05-23 18:42:32] 2
+[2025-05-23 18:42:32] AdminPeopleMenu: Adding a new person
+[2025-05-23 18:42:43] AdminPeopleMenu: Person added successfully
+[2025-05-23 18:42:48] AdminPeopleMenu: User selected option [2025-05-23 18:42:48] 1
+[2025-05-23 18:42:48] AdminPeopleMenu: Listing all people
+[2025-05-23 18:42:55] AdminPeopleMenu: User selected option [2025-05-23 18:42:55] 5
+[2025-05-23 18:42:55] AdminPeopleMenu: Exiting People Menu
+[2025-05-23 18:43:05] linkBank: Linking branches to bank ID [2025-05-23 18:43:05] 1
+[2025-05-23 18:43:05] Login menu started
+[2025-05-23 19:07:49] linkBank: Linking branches to bank ID [2025-05-23 19:07:49] 1
+[2025-05-23 19:07:49] Login menu started
+[2025-05-23 19:08:09] linkBank: Linking branches to bank ID [2025-05-23 19:08:09] 1
+[2025-05-23 19:08:09] Login menu started
+[2025-05-23 20:40:03] linkBank: Linking branches to bank ID [2025-05-23 20:40:03] 1
+[2025-05-23 20:40:03] Login menu started
+[2025-05-23 20:40:17] linkBank: Linking branches to bank ID [2025-05-23 20:40:17] 1
+[2025-05-23 20:40:17] Login menu started
+[2025-05-23 21:02:21] linkBank: Linking branches to bank ID [2025-05-23 21:02:21] 1
+[2025-05-23 21:02:21] Login menu started
+[2025-05-23 21:02:33] linkBank: Linking branches to bank ID [2025-05-23 21:02:33] 1
+[2025-05-23 21:02:33] Login menu started
+[2025-05-23 21:05:13] linkBank: Linking branches to bank ID [2025-05-23 21:05:13] 1
+[2025-05-23 21:05:13] Login menu started
+[2025-05-23 21:05:30] linkBank: Linking branches to bank ID [2025-05-23 21:05:30] 1
+[2025-05-23 21:05:30] Login menu started
+[2025-05-24 01:59:08] linkBank: Linking branches to bank ID [2025-05-24 01:59:08] 1
+[2025-05-24 01:59:08] Login menu started
+[2025-05-24 02:01:50] linkBank: Linking branches to bank ID [2025-05-24 02:01:50] 1
+[2025-05-24 02:01:50] Login menu started
+[2025-05-24 02:02:33] linkBank: Linking branches to bank ID [2025-05-24 02:02:33] 1
+[2025-05-24 02:02:33] Login menu started
+[2025-05-24 02:02:45] linkBank: Linking branches to bank ID [2025-05-24 02:02:45] 1
+[2025-05-24 02:02:45] Login menu started
+[2025-05-24 02:02:50] User entered as admin![2025-05-24 02:13:27] linkBank: Linking branches to bank ID [2025-05-24 02:13:27] 1
+[2025-05-24 02:13:27] Login menu started
+[2025-05-24 02:37:17] linkBank: Linking branches to bank ID [2025-05-24 02:37:17] 1
+[2025-05-24 02:37:17] Login menu started
+[2025-05-24 02:38:03] linkBank: Linking branches to bank ID [2025-05-24 02:38:03] 1
+[2025-05-24 02:38:03] Login menu started
+[2025-05-24 03:22:07] linkBank: Linking branches to bank ID [2025-05-24 03:22:07] 1
+[2025-05-24 03:22:07] Login menu started
+[2025-05-24 03:24:09] linkBank: Linking branches to bank ID [2025-05-24 03:24:09] 1
+[2025-05-24 03:24:09] Login menu started
+[2025-05-24 03:24:56] isIDUnique: Checking uniqueness for ID [2025-05-24 03:24:56] 9813
+[2025-05-24 03:24:56] isIDUnique: ID [2025-05-24 03:24:56] 9813[2025-05-24 03:24:56]  is unique
+[2025-05-24 03:24:56] Login menu started
+[2025-05-24 03:26:34] linkBank: Linking branches to bank ID [2025-05-24 03:26:34] 1
+[2025-05-24 03:29:21] Login menu started
+[2025-05-24 03:33:27] linkBank: Linking branches to bank ID [2025-05-24 03:33:27] 1
+[2025-05-24 03:33:27] linkBank: Linked branch number [2025-05-24 03:33:27] 1[2025-05-24 03:33:27]  to bank ID [2025-05-24 03:33:27] 1
+[2025-05-24 03:33:27] Login menu started
+[2025-05-24 03:34:08] isIDUnique: Checking uniqueness for ID [2025-05-24 03:34:08] 21628
+[2025-05-24 03:34:08] isIDUnique: ID [2025-05-24 03:34:08] 21628[2025-05-24 03:34:08]  is unique
+[2025-05-24 03:34:12] linkBank: Linking branches to bank ID [2025-05-24 03:34:12] 1
+[2025-05-24 03:34:12] linkBank: Linked branch number [2025-05-24 03:34:12] 1[2025-05-24 03:34:12]  to bank ID [2025-05-24 03:34:12] 1
+[2025-05-24 03:34:12] Login menu started
+[2025-05-24 03:34:51] isIDUnique: Checking uniqueness for ID [2025-05-24 03:34:51] 22851
+[2025-05-24 03:34:51] isIDUnique: ID [2025-05-24 03:34:51] 22851[2025-05-24 03:34:51]  is unique
+[2025-05-24 03:36:37] Login menu started
+[2025-05-24 03:36:41] linkBank: Linking branches to bank ID [2025-05-24 03:36:41] 1
+[2025-05-24 03:36:41] linkBank: Linked branch number [2025-05-24 03:36:41] 1[2025-05-24 03:36:41]  to bank ID [2025-05-24 03:36:41] 1
+[2025-05-24 03:36:41] Login menu started
+[2025-05-24 03:37:05] isIDUnique: Checking uniqueness for ID [2025-05-24 03:37:05] 27444
+[2025-05-24 03:37:05] isIDUnique: ID [2025-05-24 03:37:05] 27444[2025-05-24 03:37:05]  is unique
+[2025-05-24 03:37:51] linkBank: Linking branches to bank ID [2025-05-24 03:37:51] 1
+[2025-05-24 03:37:51] linkBank: Linked branch number [2025-05-24 03:37:51] 1[2025-05-24 03:37:51]  to bank ID [2025-05-24 03:37:51] 1
+[2025-05-24 03:37:51] Login menu started
+[2025-05-24 03:38:14] isIDUnique: Checking uniqueness for ID [2025-05-24 03:38:14] 32752
+[2025-05-24 03:38:14] isIDUnique: ID [2025-05-24 03:38:14] 32752[2025-05-24 03:38:14]  is unique
+[2025-05-24 03:38:18] Login menu started
+[2025-05-24 03:38:34] User entered as worker![2025-05-24 03:45:14] linkBank: Linking branches to bank ID [2025-05-24 03:45:14] 1
+[2025-05-24 03:45:14] linkBank: Linked branch number [2025-05-24 03:45:14] 1[2025-05-24 03:45:14]  to bank ID [2025-05-24 03:45:14] 1
+[2025-05-24 03:47:38] Login menu started
+[2025-05-24 03:47:52] linkBank: Linking branches to bank ID [2025-05-24 03:47:52] 1
+[2025-05-24 03:47:52] linkBank: Linked branch number [2025-05-24 03:47:52] 1[2025-05-24 03:47:52]  to bank ID [2025-05-24 03:47:52] 1
+[2025-05-24 03:47:52] Login menu started
+[2025-05-24 03:51:04] linkBank: Linking branches to bank ID [2025-05-24 03:51:04] 1
+[2025-05-24 03:51:04] linkBank: Linked branch number [2025-05-24 03:51:04] 1[2025-05-24 03:51:04]  to bank ID [2025-05-24 03:51:04] 1
+[2025-05-24 03:51:04] Login menu started
+[2025-05-24 03:51:33] isIDUnique: Checking uniqueness for ID [2025-05-24 03:51:35] linkBank: Linking branches to bank ID [2025-05-24 03:51:35] 1
+[2025-05-24 03:51:35] linkBank: Linked branch number [2025-05-24 03:51:35] 1[2025-05-24 03:51:35]  to bank ID [2025-05-24 03:51:35] 1
+[2025-05-24 03:51:35] Login menu started
+[2025-05-24 03:52:20] isIDUnique: Checking uniqueness for ID [2025-05-24 03:52:20] 19173
+[2025-05-24 03:52:20] isIDUnique: ID [2025-05-24 03:52:20] 19173[2025-05-24 03:52:20]  is unique
+[2025-05-24 03:52:24] Login menu started
+[2025-05-24 03:52:36] User entered as worker![2025-05-24 03:52:57] linkBank: Linking branches to bank ID [2025-05-24 03:52:57] 1
+[2025-05-24 03:52:57] linkBank: Linked branch number [2025-05-24 03:52:57] 1[2025-05-24 03:52:57]  to bank ID [2025-05-24 03:52:57] 1
+[2025-05-24 03:52:57] Login menu started
+[2025-05-24 03:53:04] User entered as admin!
