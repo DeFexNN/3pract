@@ -8,38 +8,6 @@
 #include <math.h>
 #include <Windows.h>
 
-
-////////////////////// Logger class for logging messages to a file with timestamps///////////////////////
-class Logger {
-    std::ofstream ofs;
-public:
-    Logger(const char* filename) { ofs.open(filename, std::ios::app); }
-    template<typename T>
-    Logger& operator<<(const T& msg) {
-        time_t now = time(nullptr);
-        tm* lt = localtime(&now);
-        char buf[64];
-        std::strftime(buf, sizeof(buf), "%Y-%m-%d %H:%M:%S", lt);
-        ofs << "[" << buf << "] " << msg;
-        ofs.flush();
-        return *this;
-    }
-
-    // overload for stream manipulators like std::endl
-    Logger& operator<<(std::ostream& (*manip)(std::ostream&)) {
-        manip(ofs);
-        return *this;
-    }
-
-    // allow manual flush
-    void flush() {
-        ofs.flush();
-    }
-};
-////////////////////// Logger class for logging messages to a file with timestamps///////////////////////
-static Logger logger("log.txt");
-
-//клас WorkerPosada наслідує 2 класи робітник і посади і там буде дата прийняття і дата звільнення 
 using namespace std;
 
 typedef struct {
@@ -73,20 +41,9 @@ public:
     string getTelegramID() { return TelegramID; }
     void setPassword(const char* pass) {strcpy(password, pass);}
 };
-class TelegramID {
-    char tgID[20];
-public:
-    TelegramID() = default;
-    TelegramID(const char* tg) { strcpy(tgID, tg); }
-    string GetID() { return tgID; }
-};
-vector<Account> accounts;
-vector<TelegramID> TelegramVec;
 Account* accPtr{};
 
 //|-----------------------------CLASSES----------------------------|
-const char* token = "8101900575:AAFCC1UxZAyN946qcoeEvZhXM7VuE_UhHNU"; // токен бота
-string chat_id = "1424672248";   // ID користувача
 const int STR_SIZE = 32;
 class BankBranch;
 class Client;
@@ -489,14 +446,11 @@ void readFromFile(const char* filename, vector<T>& data) {
 //|----------------------Запис Читання з файлу-------------------|
 //перевірка на унікальність айді при створенні воркера
 bool isIDUnique(int id, vector<Worker>& wk) {
-    logger << "isIDUnique: Checking uniqueness for ID " << id << std::endl;
     for (auto& w : wk) {
         if (w.getID() == id) {
-            logger << "isIDUnique: ID " << id << " is not unique" << std::endl;
             return false;
         }
     }
-    logger << "isIDUnique: ID " << id << " is unique" << std::endl;
     return true;
 }
 bool isBranchNumUnique(int num, int BankID, vector<BankBranch>& branches) {
@@ -509,10 +463,8 @@ bool isLoginUnique(const char* login, vector<Account>& p) { for (auto& a : p)if 
 
 //функція для знаходження актуального вказівника на головний банк по айді
 void linkBank(vector<BankBranch>& branches, Bank& bank) {
-    logger << "linkBank: Linking branches to bank ID " << bank.getBankID() << std::endl;
     for (auto& branch : branches) {
         branch.setBankPointer(&bank);
-        logger << "linkBank: Linked branch number " << branch.getBranchNum() << " to bank ID " << branch.getBankID() << std::endl;
     }
 }
 dtime inputCtime() {
@@ -567,7 +519,6 @@ tm ctimeToTm(const dtime& ct) {
 
 // Admin submenu for managing people
 int AdminPeopleMenu(vector<Person>& person) {
-    logger << "AdminPeopleMenu: Entered People Menu" << std::endl;
     while (true) {
         cout << "\n--- People Menu ---\n"
              << "1) List people\n"
@@ -576,40 +527,28 @@ int AdminPeopleMenu(vector<Person>& person) {
              << "4) Remove person\n"
              << "5) Back\n"
              << "Enter: "; int ch; cin >> ch;
-        logger << "AdminPeopleMenu: User selected option " << ch << std::endl;
         if (ch == 1) {
-            logger << "AdminPeopleMenu: Listing all people" << std::endl;
             for (auto& p : person) cout << p << endl;
         } else if (ch == 2) {
-            logger << "AdminPeopleMenu: Adding a new person" << std::endl;
             Person np; np.inputFromConsole();while (true) { cout << "Enter PersonID: ";int pid;cin >> pid;if (isPersonIDUnique(pid, person)) { np.setPID(pid);break; } else cout << "Enter another PersonID!\n"; }
             person.push_back(np);
-            logger << "AdminPeopleMenu: Person added successfully" << std::endl;
         } else if (ch == 3) {
             cout << "Index to edit: "; int i; cin >> i;
-            logger << "AdminPeopleMenu: Editing person at index " << i << std::endl;
             if (i >= 1 && i <= (int)person.size()) {
                 person[i-1].inputFromConsole();
-                logger << "AdminPeopleMenu: Person edited successfully" << std::endl;
             } else {
-                logger << "AdminPeopleMenu: Invalid index " << i << std::endl;
             }
         } else if (ch == 4) {
             int g = 1;
             for (auto& p : person) cout << g++ << ')' << p << endl;
             cout << "Index to remove: "; int i; cin >> i;
-            logger << "AdminPeopleMenu: Removing person at index " << i << std::endl;
             if (i >= 1 && i <= (int)person.size()) {
                 person.erase(person.begin() + i - 1);
-                logger << "AdminPeopleMenu: Person removed successfully" << std::endl;
             } else {
-                logger << "AdminPeopleMenu: Invalid index " << i << std::endl;
             }
         } else if (ch == 5) {
-            logger << "AdminPeopleMenu: Exiting People Menu" << std::endl;
             break;
         } else {
-            logger << "AdminPeopleMenu: Invalid choice " << ch << std::endl;
             cout << "Wrong choice!\n";
         }
     }
@@ -856,9 +795,9 @@ int AdminMenu(
     vector<Client>& clients,
     Bank& bank,
     vector<BankBranch>& branches,
-    vector<WorkerPosada>& wposada
+    vector<WorkerPosada>& wposada,
+	vector<Account>& accounts
 ) {
-    logger << "User entered as admin!";
     while (true) {
         cout << "\n=== ADMIN MENU ===\n"
              << "1) people menu\n"
@@ -930,7 +869,7 @@ int AdminMenu(
     return 0;
 }
 
-int WorkerMenu(vector<Client>& clients, Bank &bank, vector<BankBranch>& branches, vector<Worker>& workers, vector<WorkerPosada>&wposada, vector<Person>& person);
+int WorkerMenu(vector<Client>& clients, Bank &bank, vector<BankBranch>& branches, vector<Worker>& workers, vector<WorkerPosada>&wposada, vector<Person>& person,vector<Account>&accounts);
 // User menu with clients, bank, branches and workers
 int UserMenu(vector<Client>& clients, Bank &bank, vector<BankBranch>& branches, vector<Worker>& workers);
 int LoginMenu(
@@ -939,9 +878,9 @@ int LoginMenu(
     vector<Client>&clients,
     Bank &bank,
     vector<BankBranch>&branches,
-    vector<WorkerPosada>&wposada
+    vector<WorkerPosada>&wposada,
+	vector<Account>& accounts
 ) {
-    logger << "Login menu started\n"; logger.flush();
     cout << "Welcome to the bank system!\n";
     cout << "1)Login\n2)Register\n3)Exit\nEnter: ";int choice; cin >> choice;
     if (choice == 1) {
@@ -954,9 +893,9 @@ int LoginMenu(
                 if (strcmp(a.getLogin(), login) == 0 && strcmp(a.getPassword(), password) == 0) {
                     found = true;accPtr = &a;
                     if (a.getRole() == string("admin")) {
-                        AdminMenu(person, workers, clients, bank, branches, wposada);
+                        AdminMenu(person, workers, clients, bank, branches, wposada,accounts);
                     } else if (a.getRole() == string("worker")) {
-                        WorkerMenu(clients, bank, branches, workers,wposada,person);
+                        WorkerMenu(clients, bank, branches, workers,wposada,person,accounts);
                     } else if (a.getRole() == string("user")) {
                         UserMenu(clients, bank, branches, workers);
                     }
@@ -969,8 +908,10 @@ int LoginMenu(
 
     } else if (choice == 2) {
         bool logged = false;
+        string chat_id;
+        string token="8101900575:AAFCC1UxZAyN946qcoeEvZhXM7VuE_UhHNU";
         while(true) {
-            if (logged) { LoginMenu(person, workers, clients, bank, branches, wposada);break; }
+            if (logged) { LoginMenu(person, workers, clients, bank, branches, wposada,accounts);break; }
             cout << "1)Register in system\n2)Exit\nEnter choice: "; int ch; cin >> ch;
             if(ch==1){
                 cout << "Are you registered in bot?\n1)Yes\n2)No\n3)Exit\nEnter: ";int rees; cin >> rees;
@@ -1009,7 +950,7 @@ int LoginMenu(
                             }
                             cout << "Succesfully registered!\n";logged = true;
                             cout << "Returning to login menu\n";
-                            LoginMenu(person, workers, clients, bank, branches, wposada);
+                            LoginMenu(person, workers, clients, bank, branches, wposada,accounts);
                             break;
                         }
                         if (logged)break;
@@ -1020,7 +961,7 @@ int LoginMenu(
                 }
                 else if (rees == 3)break;
             }
-            else if (ch == 3) { LoginMenu(person, workers, clients, bank, branches, wposada); }
+            else if (ch == 3) { LoginMenu(person, workers, clients, bank, branches, wposada,accounts); }
         }
     }
         return 0;
@@ -1030,9 +971,8 @@ int LoginMenu(
 
 
 
-int WorkerMenu(vector<Client>& clients, Bank& bank, vector<BankBranch>& branches, vector<Worker>& workers,vector<WorkerPosada>& wposada,vector<Person>& person) {
+int WorkerMenu(vector<Client>& clients, Bank& bank, vector<BankBranch>& branches, vector<Worker>& workers,vector<WorkerPosada>& wposada,vector<Person>& person,vector<Account>&accounts) {
     //|----------------------Identity----------------------|
-    logger << "User entered as worker!";
     Worker* curW=NULL;
     for (auto& a : workers) { if (accPtr->getPersonID() == a.getPersonID())curW = &a; }
     cout << "You are logged as: " << curW->getFullName() << endl;
@@ -1135,6 +1075,8 @@ int WorkerMenu(vector<Client>& clients, Bank& bank, vector<BankBranch>& branches
         }
             
 		else if (choice == 6) { // Register new client
+            string chat_id;
+            string token = "8101900575:AAFCC1UxZAyN946qcoeEvZhXM7VuE_UhHNU";
 			cout << "Enter client Telegram ID: "; cin >> chat_id;
 			bool found = false;
 			for (auto& a : accounts) { if (a.getTelegramID() == chat_id) { found = true; accPtr = &a; break; } }
@@ -1192,7 +1134,6 @@ int UserMenu(vector<Client>& clients,
     //|----------------------Identity----------------------|
     Client* curCl{};
     for (auto& a : clients)if (a.getPersonID() == accPtr->getPersonID())curCl = &a;
-    logger << "Logged as user: " << curCl->getName() << " " << curCl->getSurname() << std::endl;
     cout << "You are logged as: " << *curCl << std::endl;
 
     // Select branch
@@ -1345,6 +1286,7 @@ int main() {
     Bank bank;
     vector<BankBranch> branch;
     vector<WorkerPosada> wposada;
+    vector<Account> accounts;
     const char* account_filename = "accounts.bin";
     const char* ids_filename = "ids.bin";
     const char* workerposada_filename = "workerposada.bin";
@@ -1368,7 +1310,6 @@ int main() {
     readFromFile(workerposada_filename, wposada);
     readFromFile(transaction_filename, transactions);
     readFromFile(credit_filename, credits);
-    readFromFile(ids_filename, TelegramVec);
     readFromFile(account_filename, accounts);
     InitBank(bank);
     for (auto& a : credits)a.recalcCredit();
@@ -1392,15 +1333,12 @@ int main() {
         Account user("user", "user", "user", 555);
         accounts.push_back(admin);accounts.push_back(workerAcc);accounts.push_back(user);
     }
-    TelegramID MainID(mainID);
-    TelegramVec.push_back(MainID);
     linkBank(branch,bank);
     linkWorkers(branch, worker);
-    LoginMenu(people, worker, client, bank, branch, wposada);
+    LoginMenu(people, worker, client, bank, branch, wposada,accounts);
     Position unemployedPos;unemployedPos.setSalary(0);unemployedPos.setPosition("unemployed");
 //|-------------AUTOSTART--------------|  
     // Save data to files
-    writeToFile(ids_filename, TelegramVec);
     writeToFile(account_filename, accounts);
     writeToFile(filename, people);
     writeToFile(worker_filename, worker);
